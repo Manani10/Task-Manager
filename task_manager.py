@@ -1,19 +1,35 @@
 import datetime
 
-# Function to load user data from the file into a dictionary
 def load_users(file_path):
+    """
+    Load user data from the file into a dictionary.
+
+    Args:
+        file_path (str): Path to the user file.
+
+    Returns:
+        dict: Dictionary with usernames as keys and passwords as values.
+    """
     users_info = {}
     try:
         with open(file_path, "r") as file:
             for line in file:
                 username, password = line.strip().split(",")
-                users_info[username] = password
+                users_info[username] = password.strip()  # Remove spaces around password
     except FileNotFoundError:
         print("User file not found.")
     return users_info
 
-# Function to authenticate the user
 def authenticate_user(users_info):
+    """
+    Authenticate the user.
+
+    Args:
+        users_info (dict): Dictionary with usernames and passwords.
+
+    Returns:
+        str: Username of the authenticated user.
+    """
     while True:
         username = input("Please enter username: ")
         password = input("Please enter password: ")
@@ -23,8 +39,10 @@ def authenticate_user(users_info):
         else:
             print("Invalid username or password. Please try again.")
 
-# Function to register a new user
 def register_user():
+    """
+    Register a new user by appending their username and password to the user file.
+    """
     new_username = input("Enter new username: ")
     new_password = input("Enter new password: ")
     confirm_password = input("Confirm password: ")
@@ -38,46 +56,71 @@ def register_user():
     else:
         print("Passwords do not match. Registration failed.")
 
-# Function to add a new task
 def add_task(username=None):
+    """
+    Add a new task to the tasks file.
+
+    Args:
+        username (str, optional): Username of the person the task is assigned to.
+    """
     task_username = username if username else input("Enter username of the person the task is assigned to: ")
     task_title = input("Enter task title: ")
     task_description = input("Enter task description: ")
     task_due_date = input("Enter task due date (YYYY-MM-DD): ")
     try:
         datetime.datetime.strptime(task_due_date, '%Y-%m-%d')  # Validate date format
+        creation_date = datetime.datetime.now().strftime('%d %b %Y')
         with open("tasks.txt", "a") as file:
-            file.write(f"{task_username}, {task_title}, {task_description}, {task_due_date}, No\n")
+            file.write(f"{task_username}, {task_title}, {task_description}, {creation_date}, {task_due_date}, No\n")
         print("Task added successfully!")
     except ValueError:
         print("Invalid date format. Please use YYYY-MM-DD.")
     except Exception as e:
         print(f"Error adding task: {e}")
 
-# Function to view all tasks
 def view_all_tasks():
+    """
+    View all tasks from the tasks file.
+    """
     try:
         with open("tasks.txt", "r") as file:
             print("All Tasks:")
             for line in file:
-                print(line.strip())
+                task_username, task_title, task_description, creation_date, task_due_date, task_completed = line.strip().split(", ")
+                print(f"Assigned to: {task_username}\n"
+                      f"Title: {task_title}\n"
+                      f"Description: {task_description}\n"
+                      f"Creation Date: {creation_date}\n"
+                      f"Due Date: {task_due_date}\n"
+                      f"Completed: {task_completed}\n")
     except FileNotFoundError:
         print("Tasks file not found.")
 
-# Function to view tasks assigned to a specific user
 def view_my_tasks(username):
+    """
+    View tasks assigned to the specific user.
+
+    Args:
+        username (str): Username of the person whose tasks are to be viewed.
+    """
     try:
         with open("tasks.txt", "r") as file:
             print("Your Tasks:")
             for line in file:
-                task_username, *_ = line.strip().split(", ")
+                task_username, task_title, task_description, creation_date, task_due_date, task_completed = line.strip().split(", ")
                 if task_username == username:
-                    print(line.strip())
+                    print(f"Title: {task_title}\n"
+                          f"Description: {task_description}\n"
+                          f"Creation Date: {creation_date}\n"
+                          f"Due Date: {task_due_date}\n"
+                          f"Completed: {task_completed}\n")
     except FileNotFoundError:
         print("Tasks file not found.")
 
-# Function to display statistics (for admin)
 def display_statistics():
+    """
+    Display statistics about the number of users and tasks.
+    """
     try:
         with open("user.txt", "r") as user_file:
             total_users = sum(1 for _ in user_file)
@@ -88,17 +131,22 @@ def display_statistics():
     except FileNotFoundError as e:
         print(f"File not found: {e.filename}")
 
-# Function to display the admin menu and handle choices
 def admin_menu(username):
+    """
+    Display the admin menu and handle user choices.
+
+    Args:
+        username (str): Username of the authenticated admin user.
+    """
     while True:
         choice = input('''Select one of the following options:
-            r - register a user
-            a - add task
-            va - view all tasks
-            vm - view my tasks
-            s - display statistics
-            e - exit
-            : ''').lower()
+r - register a user
+a - add task
+va - view all tasks
+vm - view my tasks
+s - display statistics
+e - exit
+: ''').lower()
         if choice == 'r':
             register_user()
         elif choice == 'a':
@@ -115,15 +163,20 @@ def admin_menu(username):
         else:
             print("You have entered an invalid input. Please try again.")
 
-# Function to display the user menu and handle choices
 def user_menu(username):
+    """
+    Display the user menu and handle user choices.
+
+    Args:
+        username (str): Username of the authenticated user.
+    """
     while True:
         choice = input('''Select one of the following options:
-            a - add task
-            va - view all tasks
-            vm - view my tasks
-            e - exit
-            : ''').lower()
+a - add task
+va - view all tasks
+vm - view my tasks
+e - exit
+: ''').lower()
         if choice == 'a':
             add_task(username)
         elif choice == 'va':
@@ -136,8 +189,10 @@ def user_menu(username):
         else:
             print("You have entered an invalid input. Please try again.")
 
-# Main function to run the application
 def main():
+    """
+    Main function to run the application.
+    """
     users_info = load_users("user.txt")
     username = authenticate_user(users_info)
     if username == 'admin':
