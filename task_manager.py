@@ -20,6 +20,18 @@ def load_users(file_path):
         print("User file not found.")
     return users_info
 
+
+# function to load the task
+def load_tasks(file_path):
+    tasks = []
+    try:
+        with open(file_path, "r") as file:
+            for line in file:
+                tasks.append(line.strip())
+    except FileNotFoundError:
+        print("Task file not found.")
+    return tasks
+
 def authenticate_user(users_info):
     """
     Authenticate the user.
@@ -66,15 +78,16 @@ def add_task(username=None):
     task_username = username if username else input("Enter username of the person the task is assigned to: ")
     task_title = input("Enter task title: ")
     task_description = input("Enter task description: ")
-    task_due_date = input("Enter task due date (YYYY-MM-DD): ")
+    task_due_date = input("Enter task due date (e.g., 22 June 2023): ")
     try:
-        datetime.datetime.strptime(task_due_date, '%Y-%m-%d')  # Validate date format
+        # Validate date format
+        datetime.datetime.strptime(task_due_date, '%d %B %Y')
         creation_date = datetime.datetime.now().strftime('%d %b %Y')
         with open("tasks.txt", "a") as file:
             file.write(f"{task_username}, {task_title}, {task_description}, {creation_date}, {task_due_date}, No\n")
         print("Task added successfully!")
     except ValueError:
-        print("Invalid date format. Please use YYYY-MM-DD.")
+        print("Invalid date format. Please use 'DD Month YYYY' (e.g., 22 June 2023).")
     except Exception as e:
         print(f"Error adding task: {e}")
 
